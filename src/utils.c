@@ -1,0 +1,3 @@
+int isValidIP(int ipAdress){
+    
+}
