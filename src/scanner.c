@@ -15,7 +15,7 @@ int populateSocket()
 
     //Add non-blocking flag to current socket flags
     int flags = fcntl(sock, F_GETFL, 0);
-    fcntl(sock, F_SETFL, flags | O_NONBLOCK)
+    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
 
-    
+    return 0;
 }
