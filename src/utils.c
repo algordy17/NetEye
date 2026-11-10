@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
+#include <stdlib.h>
 #include <arpa/inet.h>
+#include "utils.h"
 
 // Check if the input is a valid IPV4 address
 int isValidIP(const char *ip)
@@ -10,6 +10,7 @@ int isValidIP(const char *ip)
     if (result != 1)
     {
         printf("Invalid IP Address: %s \nPlease enter a valid IP Address\n", ip);
+        exit(EXIT_FAILURE);
     }
     else
     {

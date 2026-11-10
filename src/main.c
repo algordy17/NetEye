@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include "utils.c"
+#include "scanner.c"
 
 // Argv[1] = Given IP Adress
-int main(int argc, char *argv[])
+int main(int argc, char const *argv[])
 {
 
     if (argc != 2)
@@ -12,4 +13,6 @@ int main(int argc, char *argv[])
     }
 
     isValidIP(argv[1]);
+    populateSocket();
+
 }

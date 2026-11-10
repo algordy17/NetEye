@@ -1,21 +1,29 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <bits/fcntl-linux.h>
+#include <fcntl.h>
 
 int populateSocket()
 {
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    // Socket creation failed
-    if (sock < 0)
+    // Store returned file descriptor for new socket
+    int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    // Socket creation failure
+    if (sock_fd < 0)
     {
-        return -1;
+        perror("Failed to create socket");
+        exit(EXIT_FAILURE);
     }
 
-    //Add non-blocking flag to current socket flags
-    int flags = fcntl(sock, F_GETFL, 0);
-    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    printf("Socket successfully opened\n");
+
+    int flags = fcntl(sock_fd, F_GETFL, 0);
+
+    // Add non-blocking flag to current socket flags
+    fcntl(sock_fd, F_SETFL, flags | O_NONBLOCK);
+
+
 
     return 0;
 }
