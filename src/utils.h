@@ -1,6 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H 
 
-int isValidIP(const char *ip);
+int buildIP(const char *ip, struct sockaddr_in *target);
 
 #endif

@@ -1,6 +1,6 @@
 #ifndef SCANNER_H
-#define SCANNER_H 
+#define SCANNER_H
 
-int populateSocket();
+int scanPort(struct sockaddr_in target_addr, int target_port);
 
-#endif 
+#endif
