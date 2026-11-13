@@ -1,0 +1,8 @@
+# IDE & Editor files
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# Build artifacts & compiled binaries
+build/
+port_scanner
