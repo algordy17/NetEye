@@ -14,6 +14,7 @@ typedef struct
     int port;
 } ThreadArgs;
 
+// Single thread's routine
 void *scanWorker(void *arg)
 {
     // Pass the void pointer back to the struct
@@ -27,7 +28,7 @@ void *scanWorker(void *arg)
     {
         // Lock the terminal output when an open port is found, only unlock when terminal output is complete
         pthread_mutex_lock(&print_lock);
-        printf("**Port %d is open\n", args->port);
+        printf("**Port %d is open**\n", args->port);
         pthread_mutex_unlock(&print_lock);
     }
     free(args);
