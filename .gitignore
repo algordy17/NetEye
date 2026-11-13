@@ -1,7 +1,5 @@
 # IDE & Editor files
-.vscode/*
-!.vscode/tasks.json
-!.vscode/launch.json
+.vscode/
 
 # Build artifacts & compiled binaries
 build/
