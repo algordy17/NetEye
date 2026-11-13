@@ -31,7 +31,7 @@ int scanPort(struct sockaddr_in target_addr, int target_port)
     if (connect_result < 0 && errno != EINPROGRESS)
     {
         close(sock_fd);
-        return 0;
+        return -1; //Connection failure
     }
 
     // Setup the file desc. set
@@ -54,15 +54,15 @@ int scanPort(struct sockaddr_in target_addr, int target_port)
 
         if (getsockopt(sock_fd, SOL_SOCKET, SO_ERROR, &socket_err, &len) == 0)
         {
-            // Connection success
+            
             if (socket_err == 0)
             {
                 close(sock_fd);
-                return 1;
+                return 1; // Connection success
             }
         }
     }
 
     close(sock_fd);
-    return 0;
+    return 0; //No open ports were found
 }
