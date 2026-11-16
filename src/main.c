@@ -8,6 +8,8 @@
 /*
 argv[0] -> Program Name
 argv[1] -> IP Address
+argv[2] -> Starting port
+argv[3] -> Ending port
 */
 
 int main(int argc, char const *argv[])
