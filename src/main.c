@@ -15,7 +15,7 @@ argv[3] -> Ending port
 int main(int argc, char const *argv[])
 {
 
-    // Invalid usage
+    // Case of invalid usage
     if (argc != 4)
     {
         printf("Usage: %s <IPV4 address> <Starting port> <Ending port>\n", argv[0]);
@@ -23,8 +23,8 @@ int main(int argc, char const *argv[])
     }
 
     // Initial port assignment and basic validation
-    int start_port = atoi(argv[2]);
-    int end_port = atoi(argv[3]);
+    int start_port = strtol(argv[2], NULL, 10);
+    int end_port = strtol(argv[3], NULL, 10);
 
     if (start_port < 1 || end_port > 65535 || start_port > end_port)
     {
@@ -45,6 +45,5 @@ int main(int argc, char const *argv[])
 
     startScan(target_addr, start_port, end_port);
 
-    printf("Scan complete ;)\n");
     return EXIT_SUCCESS;
 }
