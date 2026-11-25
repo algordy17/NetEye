@@ -1,11 +1,9 @@
-#include <stdio.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
 #include <poll.h>
-#include <sys/select.h>
 #include <netinet/in.h>
 
 int scanPort(struct sockaddr_in target_addr, int target_port)

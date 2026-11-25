@@ -3,63 +3,80 @@
 #include <stdio.h>
 #include "scanner.h"
 
-/*
- Using mutex to keep terminal output organized, only one terminal output will be
-*/
-pthread_mutex_t print_lock = PTHREAD_MUTEX_INITIALIZER;
+#define MAX_THREADS 200 // Can scale up/down as needed here for performance
 
 typedef struct
 {
     struct sockaddr_in target_addr;
-    int port;
-} ThreadArgs;
+    int next_port;
+    int end_port;
+    pthread_mutex_t port_lock;
+    pthread_mutex_t print_lock;
+} ScanContext;
 
 // Single thread's routine
 void *scanWorker(void *arg)
 {
-    // Pass the void pointer back to the struct
-    ThreadArgs *args = (ThreadArgs *)arg;
+    ScanContext *ctx = (ScanContext *)arg;
 
-    // Execute the port scan
-    int is_open = scanPort(args->target_addr, args->port);
-
-    // Terminal output if open port is found
-    if (is_open == 1)
+    while (1)
     {
-        // Lock the terminal output when an open port is found, only unlock when terminal output is complete
-        pthread_mutex_lock(&print_lock);
-        printf("**Port %d is open**\n", args->port);
-        pthread_mutex_unlock(&print_lock);
+        // Claim the next port
+        pthread_mutex_lock(&ctx->port_lock);
+        if (ctx->next_port > ctx->end_port)
+        {
+            pthread_mutex_unlock(&ctx->port_lock);
+            break;
+        }
+        int port = ctx->next_port++;
+        pthread_mutex_unlock(&ctx->port_lock);
+
+        // Scan outside the lock so all threads run concurrently
+        int is_open = scanPort(ctx->target_addr, port);
+
+        if (is_open == 1)
+        {
+            // Lock terminal for clean print output
+            pthread_mutex_lock(&ctx->print_lock);
+            printf("**Port %d is open**\n", port);
+            pthread_mutex_unlock(&ctx->print_lock);
+        }
     }
-    free(args);
+
     return NULL;
 }
 
 void startScan(struct sockaddr_in target_addr, int start_port, int end_port)
 {
-    // Threads will spawn to work through a small batch of ports before moving to the next batch
-    pthread_t threads[200];
+    ScanContext ctx;
+    ctx.target_addr = target_addr;
+    ctx.next_port = start_port;
+    ctx.end_port = end_port;
 
-    int current_port = start_port;
-    while (current_port <= end_port)
+    pthread_mutex_init(&ctx.port_lock, NULL);
+    pthread_mutex_init(&ctx.print_lock, NULL);
+
+    // Ensure we do not create more threads than ports to scan
+    int total_ports = end_port - start_port + 1;
+    int num_threads = total_ports < MAX_THREADS ? total_ports : MAX_THREADS;
+
+    pthread_t threads[MAX_THREADS];
+    int created = 0;
+
+    // Thread creation
+    for (int i = 0; i < num_threads; i++)
     {
-        int thread_count = 0;
-
-        // Start up to 200 threads, break when batch is finished
-        for (int i = 0; i < 200 && current_port <= end_port; i++)
+        if (pthread_create(&threads[created], NULL, scanWorker, &ctx) == 0)
         {
-            ThreadArgs *args = malloc(sizeof(ThreadArgs));
-            args->target_addr = target_addr;
-            args->port = current_port;
-
-            pthread_create(&threads[i], NULL, scanWorker, args);
-            current_port++;
-            thread_count++;
-        }
-        // When all threads are finished with the current batch, join all threads to prepare for next batch
-        for (int i = 0; i < thread_count; i++)
-        {
-            pthread_join(threads[i], NULL);
+            created++;
         }
     }
+    // Wait for all active workers to finish scan
+    for (int i = 0; i < created; i++)
+    {
+        pthread_join(threads[i], NULL);
+    }
+
+    pthread_mutex_destroy(&ctx.port_lock);
+    pthread_mutex_destroy(&ctx.print_lock);
 }

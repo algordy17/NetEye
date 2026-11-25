@@ -14,7 +14,6 @@ argv[3] -> Ending port
 
 int main(int argc, char const *argv[])
 {
-
     // Case of invalid usage
     if (argc != 4)
     {
@@ -33,17 +32,16 @@ int main(int argc, char const *argv[])
     }
 
     // Populate sockaddr_in with user-defined IPv4 address
-    struct sockaddr_in target_addr;
+    struct sockaddr_in target_addr = {0};
     target_addr.sin_family = AF_INET;
     if (buildIP(argv[1], &target_addr) == -1)
     {
-        perror("Unable to resolve IP address");
+        fprintf(stderr, "Unable to resolve IP address\n");
         return EXIT_FAILURE;
     }
 
     printf("Starting scan on %s from port %d to %d\n", argv[1], start_port, end_port);
-
     startScan(target_addr, start_port, end_port);
-
+    
     return EXIT_SUCCESS;
 }
